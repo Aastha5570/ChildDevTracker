@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Child Development Tracker</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f9c74f;
+            --danger: #e63946;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --text-light: #f8f9fa;
+            --text-dark: #212529;
+            --bg-light: #ffffff;
+            --bg-dark: #121212;
+            --card-bg-light: #f8f9fa;
+            --card-bg-dark: #1e1e1e;
+            --border-light: #dee2e6;
+            --border-dark: #444;
+        }
+
+        .light-theme {
+            --bg-primary: var(--bg-light);
+            --bg-secondary: var(--card-bg-light);
+            --text-primary: var(--text-dark);
+            --text-secondary: #495057;
+            --border-color: var(--border-light);
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-theme {
+            --bg-primary: var(--bg-dark);
+            --bg-secondary: var(--card-bg-dark);
+            --text-primary: var(--text-light);
+            --text-secondary: #adb5bd;
+            --border-color: var(--border-dark);
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px var(--shadow);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .page {
+            display: none;
+            padding: 2rem 0;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background-color: #2a0883;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #c1121f;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        input, select, textarea {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .symptom-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .risk-indicator {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .risk-low {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .risk-medium {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .risk-high {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .suggestion-card {
+            border-left: 4px solid;
+            padding-left: 15px;
+        }
+
+        .suggestion-low {
+            border-left-color: #28a745;
+        }
+
+        .suggestion-medium {
+            border-left-color: #ffc107;
+        }
+
+        .suggestion-high {
+            border-left-color: #dc3545;
+        }
+
+        .disorder-card {
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .disorder-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .ai-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #4361ee, #3a0ca3);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        footer {
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body class="light-theme">
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <span>🧠</span> Child Development Tracker
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#" class="nav-link" data-page="home">Home</a></li>
+                    <li><a href="#" class="nav-link" data-page="log">Daily Log</a></li>
+                    <li><a href="#" class="nav-link" data-page="screening">Screenings</a></li>
+                    <li><a href="#" class="nav-link" data-page="report">Reports</a></li>
+                </ul>
+                <button class="theme-toggle" id="themeToggle">🌙</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Home Page -->
+        <section id="home" class="page active">
+            <div class="card">
+                <h1>Track Your Child's Development</h1>
+                <p>Monitor your child's behavior patterns, identify potential concerns early, and get AI-powered suggestions for next steps.</p>
+                <div style="display: flex; gap: 15px; margin-top: 20px;">
+                    <a href="#" class="btn nav-link" data-page="log">Start Logging</a>
+                    <a href="#" class="btn btn-secondary nav-link" data-page="screening">Run Screening</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Supported Developmental Areas</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <div class="card disorder-card" onclick="showScreening('asd')">
+                        <h3>Autism Spectrum Disorder (ASD)</h3>
+                        <p>Track speech delay, eye contact avoidance, repetitive behaviors, and social interaction patterns.</p>
+                        <span class="ai-badge">AI Screening</span>
+                    </div>
+                    
+                    <div class="card disorder-card" onclick="showScreening('adhd')">
+                        <h3>ADHD</h3>
+                        <p>Monitor hyperactivity, impulsivity, attention span, and focus challenges.</p>
+                        <span class="ai-badge">AI Screening</span>
+                    </div>
+                    
+                    <div class="card disorder-card" onclick="showScreening('speech')">
+                        <h3>Speech & Language Delay</h3>
+                        <p>Track language milestones, clarity of speech, and communication development.</p>
+                        <span class="ai-badge">AI Screening</span>
+                    </div>
+                    
+                    <div class="card disorder-card" onclick="showScreening('learning')">
+                        <h3>Learning Disabilities</h3>
+                        <p>Identify potential issues with reading, writing, memory, and academic skills.</p>
+                        <span class="ai-badge">AI Screening</span>
+                    </div>
+                    
+                    <div class="card disorder-card" onclick="showScreening('anxiety')">
+                        <h3>Anxiety & Depression</h3>
+                        <p>Monitor mood patterns, social withdrawal, and emotional well-being.</p>
+                        <span class="ai-badge">AI Screening</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>How It Works</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <div>
+                        <h3>1. Daily Logging</h3>
+                        <p>Record your child's behaviors and symptoms daily to establish patterns.</p>
+                    </div>
+                    <div>
+                        <h3>2. AI Analysis</h3>
+                        <p>Our algorithm analyzes the data to detect potential risk levels.</p>
+                    </div>
+                    <div>
+                        <h3>3. Personalized Suggestions</h3>
+                        <p>Get tailored recommendations based on the screening results.</p>
+                    </div>
+                    <div>
+                        <h3>4. Share Reports</h3>
+                        <p>Generate comprehensive reports to share with healthcare professionals.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Daily Log Page -->
+        <section id="log" class="page">
+            <div class="card">
+                <h1>Daily Behavior & Symptoms Log</h1>
+                <p>Track your child's behaviors and symptoms to identify patterns and changes over time.</p>
+            </div>
+
+            <div class="card">
+                <h2>New Entry</h2>
+                <form id="logForm">
+                    <div class="form-group">
+                        <label for="logDate">Date</label>
+                        <input type="date" id="logDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Symptoms Observed</label>
+                        <div class="symptom-checkbox">
+                            <input type="checkbox" id="symptom1" name="symptoms" value="speech_delay">
+                            <label for="symptom1">Speech Delay</label>
+                        </div>
+                        <div class="symptom-checkbox">
+                            <input type="checkbox" id="symptom2" name="symptoms" value="hyperactivity">
+                            <label for="symptom2">Hyperactivity</label>
+                        </div>
+                        <div class="symptom-checkbox">
+                            <input type="checkbox" id="symptom3" name="symptoms" value="eye_contact">
+                            <label for="symptom3">Lack of Eye Contact</label>
+                        </div>
+                        <div class="symptom-checkbox">
+                            <input type="checkbox" id="symptom4" name="symptoms" value="repetitive">
+                            <label for="symptom4">Repetitive Behavior</label>
+                        </div>
+                        <div class="symptom-checkbox">
+                            <input type="checkbox" id="symptom5" name="symptoms" value="social">
+                            <label for="symptom5">Unusual Social Behavior</label>
+                        </div>
+                        <div class="symptom-checkbox">
+                            <input type="checkbox" id="symptom6" name="symptoms" value="impulsive">
+                            <label for="symptom6">Impulsive Actions</label>
+                        </div>
+                        <div class="symptom-checkbox">
+                            <input type="checkbox" id="symptom7" name="symptoms" value="focus">
+                            <label for="symptom7">Difficulty Focusing</label>
+                        </div>
+                        <div class="symptom-checkbox">
+                            <input type="checkbox" id="symptom8" name="symptoms" value="reading">
+                            <label for="symptom8">Reading/Writing Problems</label>
+                        </div>
+                        <div class="symptom-checkbox">
+                            <input type="checkbox" id="symptom9" name="symptoms" value="mood">
+                            <label for="symptom9">Mood Changes</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="logNotes">Additional Notes</label>
+                        <textarea id="logNotes" rows="4" placeholder="Describe the behaviors in more detail..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn">Save Entry</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Previous Entries</h2>
+                <div id="logEntries">
+                    <p>No entries yet. Start logging your child's behaviors above.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Screening Page -->
+        <section id="screening" class="page">
+            <div class="card">
+                <h1>AI-Powered Developmental Screenings</h1>
+                <p>Select a screening below to assess potential risk levels for different developmental conditions.</p>
+            </div>
+
+            <div class="card">
+                <h2>Available Screenings</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <div class="card disorder-card" onclick="showScreening('asd')">
+                        <h3>Autism Spectrum Disorder</h3>
+                        <p>Assess for signs of ASD</p>
+                    </div>
+                    <div class="card disorder-card" onclick="showScreening('adhd')">
+                        <h3>ADHD</h3>
+                        <p>Evaluate attention and hyperactivity</p>
+                    </div>
+                    <div class="card disorder-card" onclick="showScreening('speech')">
+                        <h3>Speech Delay</h3>
+                        <p>Check language development</p>
+                    </div>
+                    <div class="card disorder-card" onclick="showScreening('learning')">
+                        <h3>Learning Disabilities</h3>
+                        <p>Identify learning challenges</p>
+                    </div>
+                    <div class="card disorder-card" onclick="showScreening('anxiety')">
+                        <h3>Anxiety & Depression</h3>
+                        <p>Screen for emotional concerns</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ASD Screening -->
+            <div class="card screening-form" id="asd-screening">
+                <h2>Autism Spectrum Disorder (ASD) Screening</h2>
+                <p>Answer these questions about your child's behavior patterns.</p>
+                
+                <form id="asdForm">
+                    <div class="form-group">
+                        <label>1. How often does your child make eye contact when interacting?</label>
+                        <select required>
+                            <option value="">Select an option</option>
+                            <option value="0">Always</option>
+                            <option value="1">Usually</option>
+                            <option value="2">Sometimes</option>
+                            <option value="3">Rarely/Never</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>2. Does your child engage in repetitive behaviors (hand-flapping, rocking, etc.)?</label>
+                        <select required>
+                            <option value="">Select an option</option>
+                            <option value="0">Never</option>
+                            <option value="1">Occasionally</option>
+                            <option value="2">Frequently</option>
+                            <option value="3">Very Often</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>3. How would you describe your child's speech development?</label>
+                        <select required>
+                            <option value="">Select an option</option>
+                            <option value="0">Age-appropriate</option>
+                            <option value="1">Slightly delayed</option>
+                            <option value="2">Moderately delayed</option>
+                            <option value="3">Significantly delayed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>4. How does your child respond to social interactions?</label>
+                        <select required>
+                            <option value="">Select an option</option>
+                            <option value="0">Typically</option>
+                            <option value="1">Somewhat atypically</option>
+                            <option value="2">Often atypically</option>
+                            <option value="3">Almost always atypically</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>5. Does your child have intense, focused interests?</label>
+                        <select required>
+                            <option value="">Select an option</option>
+                            <option value="0">No</option>
+                            <option value="1">Somewhat</option>
+                            <option value="2">Yes, noticeable</option>
+                            <option value="3">Yes, very intense</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn">Analyze Results</button>
+                </form>
+                
+                <div id="asdResult" style="display: none; margin-top: 20px;">
+                    <h3>ASD Screening Results</h3>
+                    <div class="progress-bar">
+                        <div id="asdProgress" class="progress-fill" style="width: 0%; background-color: #4cc9f0;"></div>
+                    </div>
+                    <div id="asdRisk" class="risk-indicator">Risk Level: Not determined</div>
+                    <div id="asdSuggestion" class="suggestion-card">Complete the assessment to get recommendations.</div>
+                </div>
+            </div>
+
+            <!-- Other screening forms would be here (ADHD, Speech, etc.) -->
+            <div id="screening-placeholder" class="card">
+                <h2>Select a Screening</h2>
+                <p>Choose one of the screening options above to begin assessment.</p>
+            </div>
+        </section>
+
+        <!-- Report Page -->
+        <section id="report" class="page">
+            <div class="card">
+                <h1>Reports & Sharing</h1>
+                <p>Generate comprehensive reports of your child's development tracking to share with healthcare providers.</p>
+            </div>
+
+            <div class="card">
+                <h2>Generate Report</h2>
+                <div class="form-group">
+                    <label for="reportRange">Date Range</label>
+                    <select id="reportRange">
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 3 months</option>
+                        <option value="180">Last 6 months</option>
+                        <option value="365">Last year</option>
+                        <option value="all">All data</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Include in Report</label>
+                    <div class="symptom-checkbox">
+                        <input type="checkbox" id="includeLogs" checked>
+                        <label for="includeLogs">Daily Log Entries</label>
+                    </div>
+                    <div class="symptom-checkbox">
+                        <input type="checkbox" id="includeScreenings" checked>
+                        <label for="includeScreenings">Screening Results</label>
+                    </div>
+                    <div class="symptom-checkbox">
+                        <input type="checkbox" id="includePatterns" checked>
+                        <label for="includePatterns">Behavior Patterns</label>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="generateReport()">Generate Report</button>
+            </div>
+
+            <div class="card">
+                <h2>Report Preview</h2>
+                <div id="reportPreview" style="padding: 20px; background-color: var(--bg-secondary); border-radius: 5px; min-height: 200px;">
+                    <p>Generate a report to see the preview here.</p>
+                </div>
+                
+                <div style="display: flex; gap: 15px; margin-top: 20px;">
+                    <button class="btn" onclick="downloadReport()">Download PDF</button>
+                    <button class="btn btn-secondary" onclick="shareReport()">Share with Doctor</button>
+                    <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Child Development Tracker &copy; 2023 | For educational purposes only. Always consult healthcare professionals for medical advice.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        // Check for saved theme preference or prefer OS theme
+        if (localStorage.getItem('theme') === 'dark' || 
+            (window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme'))) {
+            body.classList.replace('light-theme', 'dark-theme');
+            themeToggle.textContent = '☀️';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            if (body.classList.contains('light-theme')) {
+                body.classList.replace('light-theme', 'dark-theme');
+                themeToggle.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.replace('dark-theme', 'light-theme');
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        
+        // Page Navigation
+        const navLinks = document.querySelectorAll('.nav-link');
+        const pages = document.querySelectorAll('.page');
+        
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetPage = link.getAttribute('data-page');
+                
+                // Hide all pages
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                // Show target page
+                document.getElementById(targetPage).classList.add('active');
+                
+                // Special handling for screening page
+                if (targetPage === 'screening') {
+                    document.getElementById('screening-placeholder').style.display = 'block';
+                    document.querySelectorAll('.screening-form').forEach(form => {
+                        form.style.display = 'none';
+                    });
+                }
+            });
+        });
+        
+        // Daily Log Functionality
+        const logForm = document.getElementById('logForm');
+        const logEntries = document.getElementById('logEntries');
+        
+        // Load existing entries
+        function loadLogEntries() {
+            const entries = JSON.parse(localStorage.getItem('childLogEntries') || '[]');
+            
+            if (entries.length === 0) {
+                logEntries.innerHTML = '<p>No entries yet. Start logging your child\'s behaviors above.</p>';
+                return;
+            }
+            
+            logEntries.innerHTML = '';
+            entries.forEach((entry, index) => {
+                const entryEl = document.createElement('div');
+                entryEl.className = 'card';
+                entryEl.style.marginBottom = '15px';
+                
+                // Format symptoms list
+                const symptomsList = entry.symptoms.map(symptom => {
+                    return symptom.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                }).join(', ');
+                
+                entryEl.innerHTML = `
+                    <h3>${entry.date}</h3>
+                    <p><strong>Symptoms:</strong> ${symptomsList}</p>
+                    ${entry.notes ? `<p><strong>Notes:</strong> ${entry.notes}</p>` : ''}
+                    <button class="btn btn-danger" onclick="deleteLogEntry(${index})">Delete</button>
+                `;
+                
+                logEntries.appendChild(entryEl);
+            });
+        }
+        
+        // Save new log entry
+        logForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const date = document.getElementById('logDate').value;
+            const notes = document.getElementById('logNotes').value;
+            
+            // Get selected symptoms
+            const symptoms = [];
+            document.querySelectorAll('input[name="symptoms"]:checked').forEach(checkbox => {
+                symptoms.push(checkbox.value);
+            });
+            
+            if (symptoms.length === 0) {
+                alert('Please select at least one symptom.');
+                return;
+            }
+            
+            // Get existing entries
+            const entries = JSON.parse(localStorage.getItem('childLogEntries') || '[]');
+            
+            // Add new entry
+            entries.push({
+                date,
+                symptoms,
+                notes
+            });
+            
+            // Save back to localStorage
+            localStorage.setItem('childLogEntries', JSON.stringify(entries));
+            
+            // Refresh display
+            loadLogEntries();
+            
+            // Reset form
+            logForm.reset();
+            
+            alert('Entry saved successfully!');
+        });
+        
+        // Delete log entry
+        function deleteLogEntry(index) {
+            if (confirm('Are you sure you want to delete this entry?')) {
+                const entries = JSON.parse(localStorage.getItem('childLogEntries') || '[]');
+                entries.splice(index, 1);
+                localStorage.setItem('childLogEntries', JSON.stringify(entries));
+                loadLogEntries();
+            }
+        }
+        
+        // Screening Functionality
+        function showScreening(type) {
+            // Hide all screening forms and show placeholder
+            document.querySelectorAll('.screening-form').forEach(form => {
+                form.style.display = 'none';
+            });
+            document.getElementById('screening-placeholder').style.display = 'none';
+            
+            // Show selected screening form
+            document.getElementById(`${type}-screening`).style.display = 'block';
+        }
+        
+        // ASD Screening Form Submission
+        const asdForm = document.getElementById('asdForm');
+        const asdResult = document.getElementById('asdResult');
+        const asdProgress = document.getElementById('asdProgress');
+        const asdRisk = document.getElementById('asdRisk');
+        const asdSuggestion = document.getElementById('asdSuggestion');
+        
+        asdForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Calculate score (simulated AI assessment)
+            let score = 0;
+            const inputs = asdForm.querySelectorAll('select');
+            inputs.forEach(input => {
+                score += parseInt(input.value);
+            });
+            
+            // Convert to percentage (max score is 15)
+            const percentage = (score / 15) * 100;
+            
+            // Update progress bar
+            asdProgress.style.width = `${percentage}%`;
+            
+            // Determine risk level
+            let riskLevel, suggestion;
+            
+            if (percentage <= 30) {
+                riskLevel = 'Low Risk';
+                asdRisk.className = 'risk-indicator risk-low';
+                suggestion = 'Monitor your child regularly. No immediate concerns detected based on this screening.';
+            } else if (percentage <= 70) {
+                riskLevel = 'Medium Risk';
+                asdProgress.style.backgroundColor = '#ffc107';
+                asdRisk.className = 'risk-indicator risk-medium';
+                suggestion = 'Try some exercises at home to support social communication skills. Consider discussing these observations with your pediatrician.';
+            } else {
+                riskLevel = 'High Risk';
+                asdProgress.style.backgroundColor = '#dc3545';
+                asdRisk.className = 'risk-indicator risk-high';
+                suggestion = 'Consult a child psychologist or therapist for a comprehensive evaluation. Early intervention is important for better outcomes.';
+            }
+            
+            // Update result display
+            asdRisk.textContent = `Risk Level: ${riskLevel} (${Math.round(percentage)}%)`;
+            asdSuggestion.textContent = suggestion;
+            asdSuggestion.className = `suggestion-card ${riskLevel.toLowerCase().replace(' ', '-')}`;
+            
+            // Show results
+            asdResult.style.display = 'block';
+            
+            // Save screening result
+            const screenings = JSON.parse(localStorage.getItem('childScreenings') || '[]');
+            screenings.push({
+                type: 'ASD',
+                date: new Date().toLocaleDateString(),
+                score: percentage,
+                riskLevel
+            });
+            localStorage.setItem('childScreenings', JSON.stringify(screenings));
+        });
+        
+        // Report Generation
+        function generateReport() {
+            const range = document.getElementById('reportRange').value;
+            const includeLogs = document.getElementById('includeLogs').checked;
+            const includeScreenings = document.getElementById('includeScreenings').checked;
+            const includePatterns = document.getElementById('includePatterns').checked;
+            
+            // Get data from localStorage
+            const entries = JSON.parse(localStorage.getItem('childLogEntries') || '[]');
+            const screenings = JSON.parse(localStorage.getItem('childScreenings') || '[]');
+            
+            // Filter entries by date range if needed
+            let filteredEntries = entries;
+            if (range !== 'all') {
+                const cutoffDate = new Date();
+                cutoffDate.setDate(cutoffDate.getDate() - parseInt(range));
+                filteredEntries = entries.filter(entry => {
+                    const entryDate = new Date(entry.date);
+                    return entryDate >= cutoffDate;
+                });
+            }
+            
+            // Generate report HTML
+            let reportHTML = '<h2>Child Development Report</h2>';
+            reportHTML += `<p>Generated on: ${new Date().toLocaleDateString()}</p>`;
+            
+            if (includeLogs) {
+                reportHTML += '<h3>Daily Log Entries</h3>';
+                if (filteredEntries.length === 0) {
+                    reportHTML += '<p>No log entries in the selected time period.</p>';
+                } else {
+                    filteredEntries.forEach(entry => {
+                        const symptomsList = entry.symptoms.map(symptom => {
+                            return symptom.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        }).join(', ');
+                        
+                        reportHTML += `
+                            <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
+                                <p><strong>Date:</strong> ${entry.date}</p>
+                                <p><strong>Symptoms:</strong> ${symptomsList}</p>
+                                ${entry.notes ? `<p><strong>Notes:</strong> ${entry.notes}</p>` : ''}
+                            </div>
+                        `;
+                    });
+                }
+            }
+            
+            if (includeScreenings) {
+                reportHTML += '<h3>Screening Results</h3>';
+                if (screenings.length === 0) {
+                    reportHTML += '<p>No screening results available.</p>';
+                } else {
+                    screenings.forEach(screening => {
+                        reportHTML += `
+                            <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
+                                <p><strong>Type:</strong> ${screening.type}</p>
+                                <p><strong>Date:</strong> ${screening.date}</p>
+                                <p><strong>Score:</strong> ${Math.round(screening.score)}%</p>
+                                <p><strong>Risk Level:</strong> ${screening.riskLevel}</p>
+                            </div>
+                        `;
+                    });
+                }
+            }
+            
+            if (includePatterns) {
+                reportHTML += '<h3>Behavior Patterns Analysis</h3>';
+                
+                if (filteredEntries.length === 0) {
+                    reportHTML += '<p>Insufficient data for pattern analysis.</p>';
+                } else {
+                    // Count frequency of each symptom
+                    const symptomCount = {};
+                    filteredEntries.forEach(entry => {
+                        entry.symptoms.forEach(symptom => {
+                            symptomCount[symptom] = (symptomCount[symptom] || 0) + 1;
+                        });
+                    });
+                    
+                    // Get top 3 most frequent symptoms
+                    const topSymptoms = Object.entries(symptomCount)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 3);
+                    
+                    if (topSymptoms.length > 0) {
+                        reportHTML += '<p>Most frequently observed behaviors:</p><ul>';
+                        topSymptoms.forEach(([symptom, count]) => {
+                            const symptomName = symptom.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                            reportHTML += `<li>${symptomName}: ${count} occurrence(s)</li>`;
+                        });
+                        reportHTML += '</ul>';
+                    } else {
+                        reportHTML += '<p>No significant patterns detected.</p>';
+                    }
+                }
+            }
+            
+            // Add disclaimer
+            reportHTML += `
+                <div style="margin-top: 30px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+                    <p><strong>Disclaimer:</strong> This report is generated based on parent observations and screening tools. It is not a diagnostic tool. Always consult qualified healthcare professionals for medical advice and diagnosis.</p>
+                </div>
+            `;
+            
+            // Display report preview
+            document.getElementById('reportPreview').innerHTML = reportHTML;
+        }
+        
+        // Download Report as PDF (simulated)
+        function downloadReport() {
+            alert('This would download a PDF report in a real application. For now, you can print this page to save as PDF.');
+        }
+        
+        // Share Report (simulated)
+        function shareReport() {
+            alert('In a real application, this would allow you to share the report with doctors via email or secure portal.');
+        }
+        
+        // Clear All Data
+        function clearAllData() {
+            if (confirm('Are you sure you want to delete all your data? This cannot be undone.')) {
+                localStorage.removeItem('childLogEntries');
+                localStorage.removeItem('childScreenings');
+                loadLogEntries();
+                alert('All data has been cleared.');
+                
+                // Refresh report preview
+                document.getElementById('reportPreview').innerHTML = '<p>Generate a report to see the preview here.</p>';
+            }
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLogEntries();
+            
+            // Hide all screening forms initially
+            document.querySelectorAll('.screening-form').forEach(form => {
+                form.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
